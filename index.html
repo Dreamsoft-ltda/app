@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Factura Electrónica</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Estilos del formulario */
+        form {
+            max-width: 600px;
+            margin: 2rem auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #253b63;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #253b63;
+        }
+
+        button {
+            background-color: #253b63;
+            color: #f4f11f;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1a2846;
+        }
+
+        #campos_nombres {
+            display: none;
+        }
+        #digito_verificacion {
+            width: 50px;
+        }
+    </style>
+
+    <script>
+        // Datos de departamentos y ciudades
+        const ciudadesPorDepartamento = {
+            "amazonas": ["Leticia"],
+            "antioquia": [   "Medellin", "Abejorral", "Abriaqui", "Alejandria", "Amaga", "Amalfi", "Andes", "Angelopolis",
+                "Angostura", "Anori", "Santa Fe de Antioquia", "Anza", "Apartado", "Arboletes", "Argelia",
+                "Armenia", "Barbosa", "Belmira", "Bello", "Betania", "Betulia", "Bolivar", "Briceño", "Buritica",
+                "Caceres", "Caicedo", "Caldas", "Campamento", "Cañasgordas", "Caracoli", "Caramanta", "Carepa",
+                "Carmen de Viboral", "Carolina", "Caucasia", "Chigorodo", "Cisneros", "Cocorna", "Concepcion",
+                "Concordia", "Copacabana", "Dabeiba", "Don Matias", "Ebejico", "El Bagre", "Entrerrios",
+                "Envigado", "Fredonia", "Frontino", "Giraldo", "Girardota", "Gomez Plata", "Granada",
+                "Guadalupe", "Guarne", "Guatape", "Heliconia", "Hispania", "Itagui", "Ituango", "Jardin",
+                "Jerico", "La Ceja", "La Estrella", "La Union", "Liborina", "Maceo", "Marinilla", "Montebello",
+                "Murindo", "Mutata", "Nariño", "Necocli", "Nechi", "Olaya", "Peñol", "Peque", "Pueblorrico",
+                "Puerto Berrio", "Puerto Nare", "Puerto Triunfo", "Remedios", "Retiro", "Rionegro", "Sabanalarga",
+                "Sabaneta", "Salgar", "San Andres de Cuerquia", "San Carlos", "San Francisco", "San Jeronimo",
+                "San Jose de la Montaña", "San Juan de Uraba", "San Luis", "San Pedro", "San Pedro de Uraba",
+                "San Rafael", "San Roque", "San Vicente", "Santa Barbara", "Santa Rosa de Osos", "Santo Domingo",
+                "Santuario", "Segovia", "Sonson", "Sopetran", "Tamesis", "Taraza", "Tarso", "Titiribi",
+                "Toledo", "Turbo", "Uramita", "Urrao", "Valdivia", "Valparaiso", "Vegachi", "Venecia",
+                "Vigia del Fuerte", "Yali", "Yarumal", "Yolombo", "Yondo", "Zaragoza", "Rio Claro",
+                "San Antonio del Prado"],
+            "arauca": ["Arauca", "Cravo Norte", "Fortul", "Puerto Rondón", "Saravena", "Tame"],
+            "atlantico": ["Barranquilla", "Baranoa", "Campo de la Cruz", "Candelaria", "Galapa", "Juan de Acosta",
+                "Luruaco", "Malambo", "Manatí", "Palmar de Varela", "Piojó", "Polonuevo", "Ponedera",
+                "Repelón", "Sabanagrande", "Sabanalarga", "Santa Lucía", "Santo Tomás", "Soledad", 
+                "Suan", "Tubará", "Usiacurí"],
+
+            "bogota": ["Bogotá D.C."],
+            "bolivar": ["Cartagena", "Achi", "Altos del Rosario", "Arjona", "Barranco de Loba", "Calamar", 
+                "Cantagallo", "Cicuco", "Córdoba", "Clemencia", "El Carmen de Bolívar", "El Guamo", 
+                "El Peñón", "Magangué", "Mahates", "Margarita", "María La Baja", "Montecristo", 
+                "Mompós", "Morales", "Pinillos", "Regidor", "Río Viejo", "San Cristóbal", 
+                "San Estanislao", "San Fernando", "San Jacinto", "San Juan Nepomuceno", 
+                "San Martín de Loba", "San Pablo", "Santa Catalina", "Santa Rosa", 
+                "Santa Rosa del Sur", "Simití", "Soplaviento", "Talaigua Nuevo", "Tiquisio", 
+                "Turbaco", "Turbana", "Villanueva", "Zambrano", "Las Piedras"],
+            "boyaca": ["Tunja", "Almeida", "Aquitania", "Arcabuco", "Belén", "Berbeo", "Betéitiva", "Boavita", 
+                "Boyacá", "Briceño", "Buenavista", "Busbanzá", "Caldas", "Campohermoso", "Cerinza", 
+                "Chinavita", "Chiquinquirá", "Chiscas", "Chita", "Chitaraque", "Chivatá", "Ciénega", 
+                "Cómbita", "Coper", "Corrales", "Covarachía", "Cubará", "Cucaita", "Cuitiva", "Chíquiza", 
+                "Chivor", "Duitama", "El Cocuy", "El Espino", "Firavitoba", "Floresta", "Gachantivá", 
+                "Gámeza", "Garagoa", "Guacamayas", "Guateque", "Guayatá", "Güicán", "Iza", "Jenesano", 
+                "Jericó", "Labranza Grande", "La Capilla", "La Victoria", "La Uvita", "Villa de Leyva", 
+                "Macanal", "Maripí", "Miraflores", "Mongua", "Monguí", "Moniquirá", "Motavita", "Muzo", 
+                "Nobsa", "Nuevo Colón", "Oicatá", "Otanche", "Pachavita", "Páez", "Paipa", "Pajarito", 
+                "Panqueba", "Pauna", "Paya", "Paz de Río", "Pesca", "Pisba", "Puerto Boyacá", "Quípama", 
+                "Ráquira", "Ramiriquí", "Rondón", "Saboyá", "Sáchica", "Samacá", "San Eduardo", 
+                "San José de Pare", "San Luis de Gaceno", "San Mateo", "San Miguel de Sema", 
+                "San Pablo de Borbur", "Santana", "Santa María", "Santa Rosa de Viterbo", "Santa Sofía", 
+                "Sativanorte", "Sativasur", "Siachoque", "Soatá", "Socotá", "Socha", "Sogamoso", 
+                "Somondoco", "Sora", "Sotaquirá", "Soracá", "Susacón", "Sutamarchán", "Sutatenza", 
+                "Tasco", "Tenza", "Tibaná", "Tibasosa", "Tinjacá", "Tipacoque", "Toca", "Togüí", 
+                "Topaga", "Tota", "Tununguá", "Turmequé", "Tuta", "Tutazá", "Úmbita", "Ventaquemada", 
+                "Viracachá", "Zetaquirá"],
+            "caldas": ["Manizales", "Aguadas", "Anserma", "Aranzazu", "Belalcázar", "Chinchiná", "Filadelfia", 
+                "La Dorada", "La Merced", "Manzanares", "Marmato", "Marquetalia", "Marulanda", "Neira", 
+                "Pácora", "Palestina", "Pensilvania", "Riosucio", "Risaralda", "Salamina", "Samaná", 
+                "Supía", "Victoria", "Villamaría", "Viterbo", "Norcasia"],
+            "caqueta": ["Florencia", "Albania", "Belen de los Andaquies", "Cartagena del Chaira", "Curillo", 
+                "El Doncello", "El Paujil", "La Montañita", "Milan", "Morelia", "Puerto Rico", 
+                "San Jose de Fragua", "San Vicente del Caguan", "Solano", "Valparaiso"],
+                //falta  
+            "casanare": ["Yopal", "Paz de Ariporo", "Aguazul", "Hato Corozal", "Mamá", "Monterrey", "Nunchía"],
+
+            "cauca": ["Popayan", "Almaguer", "Argelia", "Balboa", "Bolivar", "Buenos Aires", "Cajibio", 
+    "Caldono", "Caloto", "Corinto", "El Tambo", "Florencia", "Guapi", "Inza", "Jambalo", 
+    "La Sierra", "La Vega", "Lopez", "Mercaderes", "Miranda", "Morales", "Padilla", "Paez", 
+    "Patia (El Bordo)", "Piendamo", "Puerto Tejada", "Purace (Coconuco)", "Rosas", "San Sebastian", 
+    "Santander", "Santander de Quilichao", "Santa Rosa", "Silvia", "Sotara", "Suarez", "Timbio", 
+    "Timbiqui", "Toribio", "Totoro"],
+            "cesar": ["Valledupar", "Aguachica", "Agustín Codazzi", "Chimichagua", "Curumani", "La Jagua de Ibirico", "Pailitas"],
+            "choco": ["Quibdó", "Istmina", "Condoto", "Acandí", "Bahía Solano", "Lloró", "Unguía"],
+            "cordoba": ["Montería", "Sahagún", "Cereté", "Lorica", "Montelíbano", "Planeta Rica", "Puerto Escondido"],
+            "cundinamarca": ["Zipaquirá", "Soacha", "Facatativá", "Fusagasugá", "Madrid", "Chía", "Girardot", "Mosquera", "Ricaurte", "Ubate"],
+            "guainia": ["Inírida"],
+            "guaviare": ["San José del Guaviare", "Calamar", "El Retorno", "Miraflores"],
+            "huila": ["Neiva", "Garzón", "Pitalito", "Campoalegre", "Rivera", "Tello", "Tesalia"],
+            "guajira": ["Riohacha", "Maicao", "Uribia", "Barrancas", "Dibulla", "Distracción", "Fonseca"],
+            "magdalena": ["Santa Marta", "Ciénaga", "Fundación", "Aracataca", "Pivijay", "Plato", "Zona Bananera"],
+            "meta": ["Villavicencio", "Acacías", "Granada", "San Martín", "Restrepo", "Puerto López", "Cumaral"],
+            "narino": ["Pasto", "Tumaco", "Ipiales", "Samaniego", "Túquerres", "La Unión", "Sandoná"],
+            "norte_santander": ["Cúcuta", "Los Patios", "Villa del Rosario", "Ocaña", "San Cayetano", "Tibú", "El Zulia"],
+            "putumayo": ["Mocoa", "Puerto Asís", "Orito", "Valle del Guamuez", "Puerto Caicedo", "Colón", "Sibundoy"],
+            "quindio": ["Armenia", "Calarcá", "Circasia", "Quimbaya", "Montenegro", "Salento"],
+            "risaralda": ["Pereira", "Dosquebradas", "La Virginia", "Belén de Umbría", "Marsella", "Santa Rosa de Cabal"],
+            "san_andres": ["San Andrés"],
+            "santander": ["Bucaramanga", "Girón", "Floridablanca", "Barrancabermeja", "Piedecuesta", "Socorro", "San Gil"],
+            "sucre": ["Sincelejo", "Corozal", "Toluviejo", "Sampués", "San Marcos", "Coveñas", "Santiago de Tolú"],
+            "tolima": ["Ibagué", "Espinal", "Líbano", "Honda", "Melgar", "Purificación", "Chaparral"],
+            "valle": ["Cali", "Buenaventura", "Palmira", "Tulúa", "Cartago", "Buga", "Yumbo", "Jamundí", "Caicedonia", "Guadalajara de Buga"],
+            "vaupes": ["Mitú", "Caruru", "Pacoa", "Taraira", "Papunaua"],
+            "vichada": ["Puerto Carreño", "La Primavera", "Santa Rosalía", "Cumaribo"]
+        };
+
+        // Función para actualizar las ciudades cuando se seleccione un departamento
+        function actualizarCiudades() {
+            const departamentoSelect = document.getElementById('departamento');
+            const ciudadSelect = document.getElementById('ciudad');
+            const departamentoSeleccionado = departamentoSelect.value;
+
+            // Limpiar las opciones actuales del select de ciudad
+            ciudadSelect.innerHTML = '';
+
+            // Agregar las nuevas opciones correspondientes al departamento seleccionado
+            if (ciudadesPorDepartamento[departamentoSeleccionado]) {
+                ciudadesPorDepartamento[departamentoSeleccionado].forEach(function(ciudad) {
+                    const nuevaOpcion = document.createElement('option');
+                    nuevaOpcion.value = ciudad.toLowerCase().replace(/ /g, '_');
+                    nuevaOpcion.textContent = ciudad;
+                    ciudadSelect.appendChild(nuevaOpcion);
+                });
+            }
+        }
+
+        function mostrarCampos() {
+            var tipoContribuyente = document.getElementById('tipo_contribuyente').value;
+            var camposNombres = document.getElementById('campos_nombres');
+            var razonSocial = document.getElementById('razon_social');
+            if (tipoContribuyente === 'persona_natural') {
+                camposNombres.style.display = 'block';
+                razonSocial.readOnly = true; // Bloquea el campo de razón social
+                actualizarRazonSocial(); // Actualiza la razón social
+            } else {
+                camposNombres.style.display = 'none';
+                razonSocial.readOnly = false;
+                razonSocial.value = ''; // Limpiar el campo de razón social
+            }
+        }
+
+        function actualizarRazonSocial() {
+            var primerNombre = document.getElementById('primer_nombre').value;
+            var segundoNombre = document.getElementById('segundo_nombre').value;
+            var primerApellido = document.getElementById('primer_apellido').value;
+            var segundoApellido = document.getElementById('segundo_apellido').value;
+            var razonSocial = document.getElementById('razon_social');
+
+            razonSocial.value = primerNombre + ' ' + segundoNombre + ' ' + primerApellido + ' ' + segundoApellido;
+        }
+
+        function validarCorreo() {
+            var correo = document.getElementById('correo').value;
+            var expresionRegular = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+            if (!expresionRegular.test(correo)) {
+                alert('Por favor, ingrese un correo electrónico válido.');
+                return false;
+            }
+            return true;
+        }
+        function validarCampos() {
+            var primerNombre = document.getElementById('primer_nombre').value;
+            var primerApellido = document.getElementById('primer_apellido').value;
+            var direccion = document.getElementById('direccion').value;
+            var expresionRegularNombres = /^[a-zA-Z\s]+$/;
+
+            if (!expresionRegularNombres.test(primerNombre)) {
+                alert('El primer nombre solo debe contener letras.');
+                return false;
+            }
+
+            if (!expresionRegularNombres.test(primerApellido)) {
+                alert('El primer apellido solo debe contener letras.');
+                return false;
+            }
+
+            if (direccion === "") {
+                alert('Por favor, ingresa una dirección.');
+                return false;
+            }
+
+            return validarCorreo(); // Llama también a la validación del correo
+        }
+        function validarNIT() {
+            var nit = document.getElementById('numero_documento').value;
+            var expresionRegularNIT = /^[0-9]{1,10}(-[0-9])?$/; // Ajusta el patrón según las reglas que necesites
+
+            if (!expresionRegularNIT.test(nit)) {
+                alert('Por favor, ingrese un NIT válido.');
+                return false;
+            }
+            return true;
+        }
+        function mostrarDigitoVerificacion() {
+            const tipoDocumento = document.getElementById('tipo_documento').value;
+            const campoDV = document.getElementById('campo_dv');
+            const digitoVerificacion = document.getElementById('digito_verificacion');
+           
+            if (tipoDocumento === "31") { // Mostrar DV para NIT (31)
+                campoDV.style.display = "inline-block";
+                digitoVerificacion.required = true;
+            } else {
+                campoDV.style.display = "none";
+                digitoVerificacion.required = false;
+            }
+        }
+    </script>
+</head>
+<body>
+<form action="guardar_datos.php" method="post" onsubmit="return validarCorreo();">
+        <!-- Tipo de documento -->
+        <label for="tipo_documento">Tipo de documento:</label>
+        <select name="tipo_documento" id="tipo_documento" onchange="mostrarDigitoVerificacion()" required>
+            <option value="">Seleccione un tipo de documento</option>
+            <option value="11">Registro civil</option>
+            <option value="12">Tarjeta de identidad</option>
+            <option value="13">Cédula de ciudadanía</option>
+            <option value="21">Tarjeta de extranjería</option>
+            <option value="22">Cédula de extranjería</option>
+            <option value="31">NIT</option>
+            <option value="41">Pasaporte</option>
+            <option value="42">Documento de identificación extranjero</option>
+        </select>
+
+        <label for="numero_documento">Número de documento:</label>
+        <input type="number" id="numero_documento" name="numero_documento" required>
+        <div id="campo_dv">
+            <label for="digito_verificacion">DV:</label>
+            <input type="number" id="digito_verificacion" name="digito_verificacion" min="0" max="9">
+        </div>
+
+
+
+        <!-- Tipo de contribuyente (select en lugar de radio buttons) -->
+        <label for="tipo_contribuyente">Tipo de contribuyente:</label>
+        <select id="tipo_contribuyente" name="tipo_contribuyente" onchange="mostrarCampos()" required>
+            <option value="persona_juridica">Persona Jurídica</option>
+            <option value="persona_natural">Persona Natural</option>
+        </select>
+
+        <!-- Campos para nombres (solo si es Persona Natural) -->
+        <div id="campos_nombres">
+            <label for="primer_nombre">Primer Nombre:</label>
+            <input type="text" id="primer_nombre" name="primer_nombre" oninput="actualizarRazonSocial()">
+
+            <label for="segundo_nombre">Segundo Nombre (Opcional):</label>
+            <input type="text" id="segundo_nombre" name="segundo_nombre" oninput="actualizarRazonSocial()">
+
+            <label for="primer_apellido">Primer Apellido:</label>
+            <input type="text" id="primer_apellido" name="primer_apellido" oninput="actualizarRazonSocial()">
+
+            <label for="segundo_apellido">Segundo Apellido:</label>
+            <input type="text" id="segundo_apellido" name="segundo_apellido" oninput="actualizarRazonSocial()">
+        </div>
+
+        <!-- Razón social (se completa automáticamente si es Persona Natural) -->
+        <label for="razon_social">Razón Social:</label>
+        <input type="text" id="razon_social" name="razon_social" required>
+
+        <!-- Régimen fiscal -->
+        <label for="regimen_fiscal">Régimen fiscal:</label>
+        <select id="regimen_fiscal" name="regimen_fiscal" required>
+            <option value="gran_contribuyente">Gran contribuyente</option>
+            <option value="responsable_iva">Responsable de IVA</option>
+            <option value="no_responsable_iva">No responsable de IVA</option>
+            <option value="regimen_simple">Régimen Simple</option>
+        </select>
+
+        <!-- Correo electrónico -->
+        <label for="correo">Correo electrónico:</label>
+        <input type="email" id="correo" name="correo" required>
+
+        <!-- Departamento -->
+        <label for="departamento">Departamento:</label>
+        <select id="departamento" name="departamento" onchange="actualizarCiudades()" required>
+            <option value="antioquia">Antioquia</option>
+            <option value="atlantico">Atlántico</option>
+            <option value="bogota">Bogotá</option>
+            <option value="bolivar">Bolívar</option>
+            <option value="boyaca">Boyacá</option>
+            <option value="caldas">Caldas</option>
+            <option value="caqueta">Caquetá</option>
+            <option value="cauca">Cauca</option>
+            <option value="cesar">Cesar</option>
+            <option value="cordoba">Córdoba</option>
+            <option value="cundinamarca">Cundinamarca</option>
+            <option value="huila">Huila</option>
+            <option value="magdalena">Magdalena</option>
+            <option value="meta">Meta</option>
+            <option value="narino">Nariño</option>
+            <option value="norte_santander">Norte de Santander</option>
+            <option value="quindio">Quindío</option>
+            <option value="risaralda">Risaralda</option>
+            <option value="santander">Santander</option>
+            <option value="sucre">Sucre</option>
+            <option value="tolima">Tolima</option>
+            <option value="valle">Valle del Cauca</option>
+        </select>
+
+        <!-- Ciudad -->
+        <label for="ciudad">Ciudad:</label>
+        <select id="ciudad" name="ciudad" required>
+            <option value="medellin">Medellín</option>
+            <option value="bello">Bello</option>
+            <option value="envigado">Envigado</option>
+        </select>
+
+        <label for="direccion">Dirección:</label>
+        <input type="text" id="direccion" name="direccion" required>
+        <!-- Botón de enviar -->
+        <button type="submit">Enviar</button>
+        
+    </form>
+</body>
+</html>
+

@@ -1,0 +1,11 @@
+{
+    "tipo_documento": "31",
+    "numero_documento": "123456789",
+    "digito_verificacion": "9",
+    "tipo_contribuyente": "persona_juridica",
+    "razon_social": "JUAN REY DEL RIO",
+    "departamento": "antioquia",
+    "ciudad": "medellin",
+    "direccion": "CL 34 41 32",
+    "correo": "juan@gmail.com"
+}

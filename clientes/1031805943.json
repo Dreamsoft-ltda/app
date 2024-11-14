@@ -1,0 +1,15 @@
+{
+    "tipo_documento": "13",
+    "numero_documento": "1031805943",
+    "digito_verificacion": "",
+    "tipo_contribuyente": "persona_natural",
+    "razon_social": "JUAN REY DEL RIO",
+    "departamento": "antioquia",
+    "ciudad": "medellin",
+    "direccion": "CL 21 25 35",
+    "correo": "juan@gmail.com",
+    "primer_nombre": "JUAN",
+    "segundo_nombre": "REY",
+    "primer_apellido": "DEL",
+    "segundo_apellido": "RIO"
+}
